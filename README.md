@@ -1,97 +1,108 @@
-# Instalacao-do-Arch-Linux
+# Instalação do Arch Linux
 
- ## My arch linux (kde) for computer science course
- ### Rápido e direto tutorial de instalação
+## Arch linux (kde) para o curso de ciências da computação, homework, etc.
+ 
+### Rápido e direto tutorial de instalação retirado do site https://wiki.archlinux.org/
 
 Defina o layout do teclado
  * loadkeys br-abnt2
 
-######Check as conecções (aqui no caso, via wifi)
-	Wifi-menu por interface
- * wifi-menu
+###### Conecte a uma rede wifi (desnecessário se estiver conectado a uma cabo de rede)
+
+Escolha um dos métodos
+
+1. Wifi-menu por interface
+
+* wifi-menu
+
 ou	
-	nmcli por linha de comando
- * nmcli device wifi list
- * nnmcli device wifi connect meuwifi password lasenadouaifai
 
-Teste de conecção
+2. nmcli por linha de comando
+
+* nmcli device wifi list
+ * nnmcli device wifi connect meuwifi password minhasenhadowifi
+
+###### Teste de conecção
 	
-	ping www.google.com
-	["ctrl" + "c"] para parar o teste
-ou
-	ping -c 3 www.google.com
-	para o teste após 3 tentativas
+ping www.google.com
+"ctrl" + "c" para parar o teste
 
-Esquema de Particionamento, formatação e montagem.
+ou
+
+ping -c 3 www.google.com
+para o teste após 3 tentativas
+
+###### Esquema de Particionamento, formatação e montagem.
+
+Confira as partições feitas e os pontos de montagem
 
  * lsblk
  
-	[IMAGEM]
-
 	/dev/sda1	/efi	512M
-	/dev/sda2	/	100Gb
+	/dev/sda2	/	50Gb
 	/dev/sda3	swap	4Gb ou 8Gb
 	/dev/sda4	/home	Restante
 
-Particionamento
+###### Particionamento
 
  * cfdisk -z /dev/sda
 
 	[IMAGEM]
 
-Formatação
+###### Formatação
 
  * mkfs.vfat /dev/sda1
  * mkfs.ext4 /dev/sda2
  * mkswap /dev/sda3
  * mkfs.ext4 /dev/sda4
 
-Montagem
+###### Montagem
 
-# mount /dev/sda2 /mnt
-# swapon /dev/sda3
+ * mount /dev/sda2 /mnt
+ * swapon /dev/sda3
 
-Criar pasta home
-# mkdir /mnt/home
-	
-# mount /dev/sda4 /mnt/home
+###### Crie a pasta home
+ * mkdir /mnt/home
 
-Criar pasta efi
+###### Monte a pasta home	
+ * mount /dev/sda4 /mnt/home
+
+###### Crie pasta efi
 
  * mkdir /mnt/efi
  * mount /dev/sda1 /mnt/efi
 
-Atualizar o relogio do sistema
+###### Atualize o relogio do sistema
 
  * timedatectl set-ntp true
 
-Instalar o pacotes essenciais do sistema
+###### Instale os pacotes essenciais do sistema
 
-#pacstrap /mnt *
+  * pacstrap /mnt os_pacotes_aqui_abaixo_separados_por_espaço
 
-*base
-*base-devel
-*linux
-*linux-firmware
-*xorg
-*vim
-*nano
+	base
+	base-devel
+	linux
+	linux-firmware
+	xorg
+	vim
+	nano
 
-Gerar arquivo fstab
+###### Gere o arquivo fstab
 
  * genfstab -U /mnt >> /mnt/etc/fstab
 
-Mudar para root
+###### Mude para root
 
  * arch-chroot /mnt
 
-Definir fuso horário
+###### Defina o fuso horário
 
  * ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
  * ln -sf /usr/share/zoneinfo/America/Maceio /etc/localtime
  * hwclock --systohc
 
-Localização
+###### Localização
 
  * vim /etc/locale.gen
 	Descomente apagando # do [#en_US.UTF-8 UTF-8]
@@ -100,42 +111,45 @@ Localização
  * vim /etc/locale.conf
 	LANG=en_US.UTF-8
 
-Salvar o layout do teclado
- * vim /etc/vconsole.conf
+###### Salve o layout do teclado
+
+* vim /etc/vconsole.conf
 	KEYMAP=
 
-Definir configuração internet
+###### Defina a configuração de internet
 
  * echo "NomedaMáquina" >> /etc/hostname
 
  * vim /etc/hosts
 
-127.0.0.1	localhost
-::1		localhost
-127.0.1.1	NomedaMáquina.localhost	NomedaMárquina
+	127.0.0.1	localhost
+	::1		localhost
+	127.0.1.1	NomedaMáquina.localhost		NomedaMárquina
 
-Definir senha
- * passwd
+###### Defina senha do usuário root
 
-Instalar e configurar gerenciador de boot
+* passwd
 
- * pacman -S grub efibootmgr
+###### Instale gerenciador de boot
 
- * grub-install --target=x86_64-efi --efi-directory=esp --bootloader-id=GRUB
+	grub efibootmgr
+
+###### Configure o gerenciador de boot
+
  * grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
  * grub-mkconfig -o /boot/grub/grub.cfg
 
-Instalar drivers, interface gráfica, programas básicos.
+Instale os drivers, interface gráfica, programas básicos.
 
- * xorg-server 
- * xorg-xinit 
- * xf86-video-intel
- * mesa
- * networkmanager
- * wpa_suplicant
- * dialog
- * pulseaudio
-
+	xorg-server
+	xorg-xinit
+	xf86-video-intel
+	mesa
+	networkmanager
+	wpa_suplicant
+	dialog
+	pulseaudio
+	kde-desktop
 
 kde e seus programas + programas terceiros
 
@@ -157,37 +171,26 @@ kde e seus programas + programas terceiros
 	Para procurar arquivos e pastas		kfind
 	Capiturar Screenshot			spectacle
 
-Criar usuário, pasta na partição /home e permissões especiais
+###### Crie usuário, pasta na partição /home e permissões especiais
 
  * useradd -m -G audio,video,storage,wheel -s /bin/bash pessoa1
  * passwd pessoa1
 
-Permissão do sudo
+###### Permissão do sudo
 
  * vim /etc/sudoers
 descomente wheel (ALL) = ALL
 
-Recomendação
+###### Crie o arquivo .xinitrc
+
+ * echo "exec startplasma-x11" >> ~/.xinitrc
+
+###### Recomendação de pacotes para o terminal
 
 	ranger
 	oh-my-zsh "bira"
 	neofetch
 	htop
-	Fontes
-
-Essetial stuff for computer science
-
-	python
-	python pip
 	git
-
-Talvez
-
-	VScode
-	Steam
-	Spotify
-	Discord
-	Gimp
-	Krita
 	
 Finalizando
