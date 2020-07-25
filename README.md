@@ -1,25 +1,31 @@
 # Instalação do Arch Linux
-#### Arch linux (kde) para o curso de ciências da computação, homework, etc.
-#### Rápido e direto tutorial de instalação retirado do site https://wiki.archlinux.org/
 
+> Arch linux (kde) para o curso de ciências da computação, homework, etc.
+
+> Rápido e direto tutorial de instalação retirado da wiki https://wiki.archlinux.org/
+
+> Para fazer o bootável use "balenaEtcher"
+
+#### Inicie o pendrive bootável no modo uefi/efi
 
 #### Defina o layout do teclado
  * loadkeys br-abnt2
 
 #### Conecte a uma rede wifi (desnecessário se estiver conectado a uma cabo de rede)
 
-#### Escolha um dos métodos
+iwctl por linha de comando
 
-1. Wifi-menu por interface
-
-* wifi-menu
-
-ou	
-
-2. nmcli por linha de comando
-
- * nmcli device wifi list
- * nnmcli device wifi connect meuwifi password minhasenhadowifi
+ * iwtcl device list
+ Se a wlan0 estiver desligada...
+ * ip link set wlan0 up
+ 
+ Se retornar o erro RTNETLINK asnwers Operation not possible due to RF-kill
+	 * rfkill list all
+	 * rfkill unblock all
+ 
+ * iwctl station wlan0 scan
+ * iwctl station wlan0 get-networks
+ * iwctl station wlan0 connect meuwifi
 
 #### Teste de conecção
 	
@@ -33,19 +39,15 @@ para o teste após 3 tentativas
 
 #### Esquema de Particionamento, formatação e montagem.
 
-Confira as partições feitas e os pontos de montagem
-
- * lsblk
- 
-	/dev/sda1	/efi	512M
+	/dev/sda1	/efi	512Mb
 	/dev/sda2	/	50Gb
-	/dev/sda3	swap	4Gb ou 8Gb
+	/dev/sda3	swap	Dobro da RAM
 	/dev/sda4	/home	Restante
 
 #### Particionamento
 
  * cfdisk -z /dev/sda
-
+ 
 	[IMAGEM]
 
 #### Formatação
@@ -71,6 +73,7 @@ Confira as partições feitas e os pontos de montagem
  * mkdir /mnt/efi
  * mount /dev/sda1 /mnt/efi
 
+
 #### Atualize o relogio do sistema
 
  * timedatectl set-ntp true
@@ -83,9 +86,7 @@ Confira as partições feitas e os pontos de montagem
 	base-devel
 	linux
 	linux-firmware
-	xorg
 	vim
-	nano
 
 #### Gere o arquivo fstab
 
@@ -107,13 +108,11 @@ Confira as partições feitas e os pontos de montagem
 	Descomente apagando # do [#en_US.UTF-8 UTF-8]
  * locale-gen
 
- * vim /etc/locale.conf
-	LANG=en_US.UTF-8
+ * echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 
 #### Salve o layout do teclado
 
-* vim /etc/vconsole.conf
-	KEYMAP=
+* echo "KEYMAP=br-abnt2" >> /etc/vconsole.conf
 
 #### Defina a configuração de internet
 
@@ -121,9 +120,7 @@ Confira as partições feitas e os pontos de montagem
 
  * vim /etc/hosts
 
-	127.0.0.1	localhost
-	::1		localhost
-	127.0.1.1	NomedaMáquina.localhost		NomedaMárquina
+	[Imagem]
 
 #### Defina senha do usuário root
 
@@ -139,7 +136,7 @@ Confira as partições feitas e os pontos de montagem
  * grub-mkconfig -o /boot/grub/grub.cfg
 
 #### Instale os drivers, interface gráfica, programas básicos.
-
+	xorg
 	xorg-server
 	xorg-xinit
 	xf86-video-intel
@@ -184,6 +181,11 @@ descomente wheel (ALL) = ALL
 
  * echo "exec startplasma-x11" >> ~/.xinitrc
 
+#### Habilite os serviços
+
+* systemctl enable NetworkManager
+* systemctl enable sddm.service
+
 #### Recomendação de pacotes para o terminal
 
 	ranger
@@ -191,5 +193,6 @@ descomente wheel (ALL) = ALL
 	neofetch
 	htop
 	git
+	most
 	
 #### Finalizando
