@@ -30,6 +30,8 @@ Uma das maiores vantagens da distribuição Arch Linux é a sua simplicidade na 
 
 # Instalação:
 
+![ALT](/imgs/lain.gif)
+
 Defina o layout do teclado
 
 	loadkeys br-abnt2
@@ -66,6 +68,8 @@ Esquema de particionamento, formatação e montagem em disco limpo
 nota: o que vc vai mais usar no cfdisk é "new", tamanho número em G para Gib ou M para Mib, "write" e "type" para escrever as modificações
 
 ## Particionamento
+
+![Alt](imgs/partition.jpg)
 
 	cfdisk -z /dev/sda	"para formatar e instalar em todo o HD"
 
@@ -153,9 +157,11 @@ Atualize o relógio do sistema
 
 	timedatectl set-ntp true "check usando timedatectl status"
 
-## Instalação base do sistema
+## Instalação e configuração base do sistema
 
 Instale os pacotes essenciais do sistema
+
+![ALT](/imgs/pacstrap.gif)
 
 `pacstrap /mnt/ base base-devel linux-firmware nano`
 
@@ -212,7 +218,7 @@ Adicione as entradas correspondentes ao hosts
 
 	nano /etc/hosts
 
-![Alt](Screenshots/Screenshot from 2020-07-25 18-56-25.png)
+![ALT](imgs/hosts.png)
 
 
 Defina a senha do root
@@ -228,7 +234,12 @@ Configure o gerenciador de boot
 	grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 	grub-mkconfig -o /boot/grub/grub.cfg
 
-# Faça o reboot
+# DESMONTAR AS PARTIÇÕES E REINICIAR
+```
+# exit
+# umount -R /mnt
+# poweroff
+```
 
 #
 
@@ -236,6 +247,8 @@ Configure o gerenciador de boot
 Um display server ou servidor de janela é um programa cuja principal tarefa é coordenar a entrada e saída de seus clientes para o sistema operacional, o hardware e entre eles. Em outras palavras, o display server controla e gerencia os recursos de baixo nível para ajudar a integrar as partes da GUI. Por exemplo, os display server gerenciam o mouse e ajudam a combinar os movimentos do mouse com o cursor e os eventos GUI causados pelo cursor. Mas não se confunda, o servidor de exibição não desenha nada. Eles apenas gerenciam a interface, as bibliotecas, os toolkits e, como você pode ver, eles se comunicam diretamente com o kernel. Vamos usar o [XORG](https://wiki.archlinux.org/index.php/Xorg_(Portugu%C3%AAs))
 
 ## Usuário e interface gráfica
+
+![ALT](imgs/sidonia.gif)
 
 Instale os seguintes pacotes
 
@@ -261,6 +274,9 @@ Permissão do sudo
 
 ## Possíveis erros
 
+![ALT](imgs/cibo2.gif)
+
+```
 git clone https://aur.archlinux.org/aic94xx-firmware.git
 cd aic94xx-firmware
 makepkg -sri
@@ -274,6 +290,7 @@ cd xhci_pci-firmware
 makepkg -sri 
 
 mkinitcpio -p linux
+```
 
 #
 
@@ -304,6 +321,19 @@ blacklist pcspkr
 
 
 
+Set up your git config
+git config --global user.email "MAIL"
+git config --global user.name "NAME"
+
+# SSH
+sudo pacman -Sy openssh
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+# File editor
+pacman -S gedit vim gedit-plugins
+
+pacman -S git bash-completion tk # tk is used by gitk
 
 
 
@@ -315,15 +345,7 @@ blacklist pcspkr
 
 
 
-
-
-
-# DESMONTAR AS PARTIÇÕES E REINICIAR
-```
-# exit
-# umount -R /mnt
-# poweroff
-```
+![ALT](imgs/nerv-agent.gif)
 
 # PÓS INSTALAÇÃO
 >Após a instalação do Arch Linux a única coisa que os usuários vêem é uma linha de comando sem qualquer servidor X, então o usuário deve instalar o X server, uma área de trabalho e alguns outros aplicativos para fazer seu trabalhos diários.
@@ -466,13 +488,6 @@ Exemplo: Lxdm
 # reboot
 ```
 Existem outras alternativas como: **Gdm**, **Sddm** etc.
-
-# YAOURT
-Alguns pacotes não podem ser encontrados no repositório principal, por isso temos o AUR onde possamos encontra-los e instalá-los, e para fazer isto precisamos adicionar o endereço AUR no final do arquivo /etc/pacman.conf.
-```
-# echo -e "[archlinuxfr]\nSigLevel = Never\nServer=http://repo.archlinux.fr/\$arch" >> /etc/pacman.conf
-# pacman -Sy yaourt
-```
 
 # RECOMENDAÇÕES FINAIS
 Caso use um notebook, você deve instalar os drivers do seu touchpad:
