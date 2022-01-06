@@ -30,16 +30,17 @@ Uma das maiores vantagens da distribuição Arch Linux é a sua simplicidade na 
 
 # Instalação:
 
-<img src="/imgs/lain.gif" align="right">
+<img src="/imgs/lain.gif" align="right" width="200" height="200">
+
+Nota, a maior parte desse guia é só seguir a receita `command line` e fazendo para entender melhor então:
 
 Defina o layout do teclado
 
 	loadkeys br-abnt2
 
-Conecte-se a uma rede wifi
+Conecte-se a uma rede wifi seguindo os passos abaixo
 
-
-Faça a checagem
+Faça a checagem da rede
 
 	iwctl device list
 	
@@ -52,7 +53,7 @@ Caso retorne algum erro tipo ***RTNETLINK answers Operation not possible due to 
 	rfkill list all
 	rfkill unblock all
 	
-Fazendo a conexão
+Para fazer a conexão
 
 	iwctl station wlan0 scan
 	iwctl station wlan0 get-networks
@@ -70,15 +71,16 @@ ou
 
 > Para o teste após 3 tentativas
 
-Esquema de particionamento, formatação e montagem em disco limpo
 
-nota: o que vc vai mais usar no cfdisk é "new", tamanho número em G para Gib ou M para Mib, "write" e "type" para escrever as modificações
-
-## Particionamento
+## Uma breve explicação sobre partição
 
 Uma partição é uma divisão do espaço de um disco rígido (SCSI ou SATA). Cada partição pode conter um sistema de arquivos diferente. Consequentemente, em cada partição pode ser instalado um Sistema Operativo sendo possível portanto a convivência de vários Sistemas Operacionais na mesma unidade de disco.
 
 Existem diferentes modelos de particionamento, sendo o tipo DOS era o mais conhecido, usado nos computadores PC. Atualmente um tipo que começa a ser difundido é o GPT (GUID Partition Table), usado em conjunto com o UEFI (Unified Extensible Firmware Interface -- padrão criado pela Intel para substituir o BIOS, atualmente mantido por Unified EFI, Inc.). [Para saber mais clique aqui](https://pt.wikipedia.org/wiki/Particionamento_de_disco))
+
+### Esquema de particionamento, formatação e montagem em disco limpo
+
+nota: o que vc vai mais usar no `cfdisk` é "new", tamanho número em G para Gib ou M para Mib, "write" e "type" para escrever as modificações
 
 ### Ocupando todo o HD
 
@@ -100,7 +102,7 @@ Formatação
 	mkswap /dev/sda3
 	mkfs.ext4 /dev/sda4
 
-Montagem (USE lsblk para fazer checagem)
+Montagem (USE `lsblk` para fazer checagem)
 
 	mount /dev/sda2 /mnt
 	swapon /dev/sda3
@@ -146,7 +148,7 @@ Formatação
 	mkswap /dev/sda7
 	mkfs.ext4 /dev/sda8
 
-Montagem (USE lsblk para fazer checagem)
+Montagem (USE `lsblk` para fazer checagem)
 
 	mount /dev/sda6 /mnt
 	swapon /dev/sda7
@@ -168,7 +170,11 @@ Crie e monte a pasta efi
 
 Atualize o relógio do sistema
 
-	timedatectl set-ntp true "check usando timedatectl status"
+	timedatectl set-ntp true
+	
+Faça a chegagem
+
+	timedatectl status
 
 ## Instalação e configuração base do sistema
 
@@ -272,7 +278,7 @@ Instale o driver proprietário (placas e processadores intel) e aplicativos para
 	umount -R /mnt
 	poweroff
 
-#
+## Configuração de usuário
 
 
 Crie usuário, pasta na partição /home e permissões especiais
@@ -295,10 +301,16 @@ Para conectar a uma rede wifi:
 
 	nmcli device wifi connect NOME_da_REDE password SENHA_da_REDE
 
-## INSTALAR DISPLAY SERVER
+## INSTALE DISPLAY SERVER
 Um display server ou servidor de janela é um programa cuja principal tarefa é coordenar a entrada e saída de seus clientes para o sistema operacional, o hardware e entre eles. Em outras palavras, o display server controla e gerencia os recursos de baixo nível para ajudar a integrar as partes da GUI. Por exemplo, os display server gerenciam o mouse e ajudam a combinar os movimentos do mouse com o cursor e os eventos GUI causados pelo cursor. Mas não se confunda, o servidor de exibição não desenha nada. Eles apenas gerenciam a interface, as bibliotecas, os toolkits e, como você pode ver, eles se comunicam diretamente com o kernel. Vamos usar o [XORG](https://wiki.archlinux.org/index.php/Xorg_(Portugu%C3%AAs))
 
 	pacman -S xorg xorg-server xorg-xinit
+
+## FINALIZANDO COM A INTERFACE GRÁFICA
+
+<img src="imgs/sidonia.gif" align="right">
+
+KDE e Gnome
 
 <!--
 ## Preparando a interface gráfica
