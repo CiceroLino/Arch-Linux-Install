@@ -312,6 +312,8 @@ Um display server ou servidor de janela é um programa cuja principal tarefa é 
 
 KDE e Gnome
 
+
+
 <!--
 ## Preparando a interface gráfica
 
@@ -339,26 +341,3 @@ Instale o AUR helper e em seguida instale o polybar
 	trizen -S polybar
 
 -->
-## Possíveis erros para resolver
-
-<img src="imgs/cibo2.gif" align="right" width="400">
-
-```
-git clone https://aur.archlinux.org/aic94xx-firmware.git
-cd aic94xx-firmware
-makepkg -sri
-
-git clone https://aur.archlinux.org/wd719x-firmware.git
-cd wd719x-firmware
-makepkg -sri
-
-git clone https://aur.archlinux.org/xhci_pci-firmware.git
-cd xhci_pci-firmware
-makepkg -sri 
-
-mkinitcpio -p linux
-
-touch /etc/modprobe.d/nobeep.conf
-blacklist pcspkr
-
-```
