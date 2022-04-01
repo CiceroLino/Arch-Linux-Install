@@ -1,3 +1,24 @@
+<a href="https://github.com/ApertureLaboratory">
+    <img alt="Aperture Laboratories - Chell Series" src="https://github.com/ApertureLaboratory/4chell/blob/main/.github/ChellSeries.png" />
+</a>
+
+</br>
+
+<p align="center">
+    A intenção desse repositório é guiar você através de tutoriais, artigos e dicas para te mostrar os caminhos na área da tecnologia e desenvolvimento, seja você iniciante, curioso ou alguém que anseia e se alimenta de conhecimento. </br>
+    Esse é a "Chell Series"
+</p>
+
+<p align="center">
+Esse projeto é alimentado pela equipe de desenvolvedores e contribuidores da <a href="https://discord.gg/nyTRNSV">Aperture Laboratories</a>
+</p>
+
+<p align="center">
+    <i>Science without results is just a witchcraft</i>
+</p>
+
+</br></br>
+
 # Guia de instalação do Arch Linux
 
 🛠 Instalação básica completa, ainda falta o guia para interface gráfica 🛠
