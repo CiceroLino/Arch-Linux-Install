@@ -29,15 +29,18 @@ Ah! E também pularei toda introdução do Arch Linux, isto é, do que é (esper
 
 1. Requisitos e preparação
 2. Iniciando o bootável e considerações
-3. Layout do teclado, internet, disco.
-4. Instalação dos pacotes base
-5. Configurações iniciais
-6. Configuração do usuário
-7. Instalação e configuração da interface gráfica e aplicativos
+3. Layout do teclado, internet
+4. Esquema de particionamento, formatação e montagem
+4.1 Ocupando todo o HD
+4.2 Dual boot com windows 10
+5. Instalação dos pacotes base do sistema
+6. Configurações iniciais
+7. Configuração do usuário
+8. Instalação e configuração da interface gráfica e aplicativos
 
 ### Requisitos e preparação
 
-- O dia todo livre para fazer somente essa instalação hahahaha!
+- Talvez o dia todo livre para fazer somente essa instalação hahahaha!
 - Conexão com internet (wifi ou cabeada)
 - Pendrive [bootável](https://www.balena.io/etcher/) com a iso [Arch Linux](https://archlinux.org/download/) (Esse software é o mais fácil e prático que achei, mas sinta-se livre em usar outro)
 - Acesso ao boot do sistema (é comum ter que desabilitar o security boot para iniciar o pendrive bootável)
@@ -56,7 +59,7 @@ Siga esses passos:
 
 Ao seguir os passos acima e esperar um pouco, você estará de cara com o terminal. Agora a parte divertida vai começar.
 
-### Layout do teclado e internet
+### Layout do teclado, internet
 
 Você começará definindo o layout do teclado para o nosso que estamos acostumados, isso inclui o 'ç' e pontuações nos lugares que novamente estamos habituados.
 
@@ -248,6 +251,8 @@ Instale os pacotes essenciais do sistema
 
 `pacstrap /mnt/ base base-devel linux linux-firmware nano vim`
 
+## Configurações iniciais
+
 Gere o arquivo fstab
 
 `genfstab -U /mnt >> /mnt/etc/fstab`
@@ -266,9 +271,13 @@ Exemplo prático
 
 `ln -sf /usr/share/zoneinfo/America/Maceio /etc/localtime`
 
-Execute hwclock para gerar /etc/adjtime:
+Para sincronizar o relógio com as informações da BIOS, se ela estiver correta, o seu relógio também estará:
 
 `hwclock --systohc`
+
+Para conferir se data e hora do sistema estão corretas:
+
+`date`
 
 Então vamos editar o arquivo de locales para dizer qual encode de caracteres vamos usar.
 
@@ -368,6 +377,18 @@ Para conectar a uma rede wifi:
 ### Interface gráfica
 
 ![interface gráfica](imgs/sidonia.gif)
+
+Para preparar o ambiente das interfaces gráficas precisamos de um servidor de exibição, no caso Xorg
+
+`sudo pacman -S xorg-server xorg-xinit xorg-apps mesa`
+
+Depois do servidor de exibição, precisa-se do driver de vídeo
+
+`sudo pacman -S xf86-video-intel` Intel
+
+`sudo pacman -S nvidia nvidia-settings` Nvidia
+
+`sudo pacman -S xf86-video-amdgpu` AMD
 
 [KDE](kde.md)
 
