@@ -1,29 +1,8 @@
-<a href="https://github.com/ApertureLaboratory">
-    <img alt="Aperture Laboratories - Chell Series" src="https://github.com/ApertureLaboratory/4chell/blob/main/.github/ChellSeries.png" />
-</a>
-
-</br>
-
-<p align="center">
-    A intenção desse repositório é guiar você através de tutoriais, artigos e dicas para te mostrar os caminhos na área da tecnologia e desenvolvimento, seja você iniciante, curioso ou alguém que anseia e se alimenta de conhecimento. </br>
-    Esse é a "Chell Series"
-</p>
-
-<p align="center">
-Esse projeto é alimentado pela equipe de desenvolvedores e contribuidores da <a href="https://discord.gg/nyTRNSV">Aperture Laboratories</a>
-</p>
-
-<p align="center">
-    <i>Science without results is just a witchcraft</i>
-</p>
-
-</br></br>
-
 # Guia de instalação do Arch Linux com interfaces gráficas (KDE e GNOME, e em breve, outras)
 
 Este guia (feito por um estudante universitário) é para os curiosos que querem começar com Linux do jeito mais old school e prático para aprendizado, o conhecimento adquirido aqui pode levantar uma boa base para seus estudos com linux e máquinas virtuais, e dito isso, chega de enrolação e vamos a por a mão na massa.
 
-Ah! E também pularei toda introdução do Arch Linux, isto é, do que é (espero que tenha pesquisado), sua história, vantagens e desvantagens, etc (façam seu dever de casa). Mas também sinta-se livre em abrir uma issue e perguntar caso tenha alguma dúvida (da instalação) que não consiga resolver mesmo pesquisando ou procurando na documentação e fóruns.
+Pularei toda introdução do Arch Linux, isto é, do que é (espero que tenha pesquisado), sua história, vantagens e desvantagens, etc (façam seu dever de casa). Mas também sinta-se livre em abrir uma issue e perguntar caso tenha alguma dúvida (da instalação) que não consiga resolver mesmo pesquisando ou procurando na documentação e fóruns.
 
 ## Sumário
 
