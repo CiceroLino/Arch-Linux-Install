@@ -1,376 +1,348 @@
-# Guia de instalação do Arch Linux com interfaces gráficas (KDE e GNOME, e em breve, outras)
+# Guia de instalação do Arch Linux (atualizado com base na documentação oficial)
 
-Este guia (feito por um estudante universitário) é para os curiosos que querem começar com Linux do jeito mais old school e prático para aprendizado, o conhecimento adquirido aqui pode levantar uma boa base para seus estudos com linux e máquinas virtuais, e dito isso, chega de enrolação e vamos a por a mão na massa.
+> Um guia prático, didático e direto ao ponto para instalar Arch Linux com UEFI/GPT, com caminho para desktop (GNOME/KDE) ao final.
 
-Pularei toda introdução do Arch Linux, isto é, do que é (espero que tenha pesquisado), sua história, vantagens e desvantagens, etc (façam seu dever de casa). Mas também sinta-se livre em abrir uma issue e perguntar caso tenha alguma dúvida (da instalação) que não consiga resolver mesmo pesquisando ou procurando na documentação e fóruns.
+Este material foi reestruturado para seguir o fluxo recomendado no **ArchWiki Installation Guide**, mas com linguagem acessível em português, checkpoints visuais e comandos prontos para uso.
 
-## Sumário
+---
 
-1. Requisitos e preparação
-2. Iniciando o bootável e considerações
-3. Layout do teclado, internet
-4. Esquema de particionamento, formatação e montagem
-4.1 Ocupando todo o HD
-4.2 Dual boot com windows 10
-5. Instalação dos pacotes base do sistema
-6. Configurações iniciais
-7. Configuração do usuário
-8. Instalação e configuração da interface gráfica e aplicativos
+## 🎯 Painel rápido da instalação
 
-### Requisitos e preparação
+| Etapa | Objetivo | Status esperado |
+|---|---|---|
+| 1. Boot e rede | Entrar no live ISO e conectar na internet | `ping` responde |
+| 2. Particionamento | Criar EFI, root, swap (opcional), home (opcional) | `lsblk` mostra layout |
+| 3. Base do sistema | Instalar kernel + pacotes essenciais | `pacstrap` concluído |
+| 4. Configuração | Fuso, locale, hostname, initramfs e bootloader | Boot configurado |
+| 5. Pós-instalação | Usuário, sudo, rede e desktop | Sistema pronto para uso |
 
-- Talvez o dia todo livre para fazer somente essa instalação hahahaha!
-- Conexão com internet (wifi ou cabeada)
-- Pendrive [bootável](https://www.balena.io/etcher/) com a iso [Arch Linux](https://archlinux.org/download/) (Esse software é o mais fácil e prático que achei, mas sinta-se livre em usar outro)
-- Acesso ao boot do sistema (é comum ter que desabilitar o security boot para iniciar o pendrive bootável)
-- Tempo e paciência (é um processo demorado, semelhante a uma cirurgia no sistema)
-- Um pouco de inglês ajuda muito. (Estudar tecnologia sem inglês é igual a um padre pregar sem saber latim na idade média)
+---
 
-### Iniciando o bootável e considerações
+## 🧭 Fluxograma (visão geral)
 
-![Lain](/imgs/lain.gif)
+```mermaid
+flowchart TD
+    A[Boot pelo pendrive Arch ISO] --> B[Configurar teclado e rede]
+    B --> C[Particionar disco]
+    C --> D[Formatar e montar partições]
+    D --> E[Instalar base com pacstrap]
+    E --> F[Gerar fstab e entrar no arch-chroot]
+    F --> G[Configurar timezone, locale e hostname]
+    G --> H[Instalar/Configurar bootloader]
+    H --> I[Criar usuario, sudo e NetworkManager]
+    I --> J[Reiniciar e validar boot]
+    J --> K[Instalar ambiente grafico opcional]
+```
 
-Siga esses passos:
+---
 
-1. Plugue o pendrive na sua máquina desligada
-2. Ligue e acesse o boot (não a bios) da máquina, e isso dependerá da fabricante da placa-mãe. No meu caso é a tecla f12 o menu de boot e f2 a bios
-3. Ache o seu pendrive e clique enter
+## 1) Pré-requisitos
 
-Ao seguir os passos acima e esperar um pouco, você estará de cara com o terminal. Agora a parte divertida vai começar.
+- Pendrive com ISO atual do Arch Linux: <https://archlinux.org/download/>
+- Boot em modo **UEFI** (recomendado).
+- Backup dos dados importantes (obrigatório para evitar perda).
+- Internet funcionando (cabo ou Wi-Fi).
+- Tempo e paciência 😄
 
-### Layout do teclado, internet
+### Validar se está em UEFI
 
-Você começará definindo o layout do teclado para o nosso que estamos acostumados, isso inclui o 'ç' e pontuações nos lugares que novamente estamos habituados.
+```bash
+ls /sys/firmware/efi/efivars
+```
 
-`loadkeys br-abnt2`
+Se listar arquivos, você está em UEFI.
 
-Aproveitando vou abrir uma tangente: caso tenham dúvidas no comando, vocês podem a qualquer momento acessar as páginas do manual, ou documentação (também conhecidas como man pages) pelo terminal, exemplo, `man loadkeys`, daí é só usar as setas para cima e para baixo e teclar q de 'quit' para sair do manual.
+---
 
-![Man page](/imgs/most.png)
+## 2) Layout do teclado e internet
 
-Defina uma conexão estável com a internet para baixar e atualizar pacotes, se for cabeada vai da para pular essa parte e se não, prossiga comigo.
+### Teclado ABNT2
 
-Faça uma checagem da sua interface de rede, basicamente verificar quais você tem e, se está listada e ativa
+```bash
+loadkeys br-abnt2
+```
 
-`ip link`
+### Rede cabeada
 
-Caso você tenha uma interface com o nome de wlan0 prossiga usando `iwctl`
+Normalmente já funciona automaticamente.
 
-Conecte-se a uma rede wifi seguindo os passos abaixo
+### Rede Wi-Fi (via `iwctl`)
 
-Faça a checagem da rede
+```bash
+iwctl
+device list
+station wlan0 scan
+station wlan0 get-networks
+station wlan0 connect "NOME_DA_REDE"
+exit
+```
 
-`iwctl device list`
+Teste da conexão:
 
-Se wlan0 estiver ainda desligada...
+```bash
+ping -c 3 archlinux.org
+```
 
-`ip link set wlan0 up`
+Sincronize relógio (importante para pacotes/chaves):
 
-Caso retorne algum erro tipo ***RTNETLINK answers Operation not possible due to RF-kill*** faça:
+```bash
+timedatectl set-ntp true
+timedatectl status
+```
 
-`rfkill list all` (para curiosos)
+---
 
-`rfkill unblock all` (para aqueles que crentes na fonte: confia)
+## 3) Particionamento (UEFI + GPT)
 
-Para fazer a conexão sigas esses passos (bem autoexplicativos)
+> Use `lsblk` antes/depois de cada etapa para não errar disco/partição.
 
-`iwctl station wlan0 scan`
+```bash
+lsblk
+```
 
-`iwctl station wlan0 get-networks`
+### Modelo recomendado (instalação limpa)
 
-`iwctl station wlan0 connect meu_wifi`
+| Partição | Tamanho sugerido | Sistema de arquivos | Ponto de montagem |
+|---|---:|---|---|
+| EFI | 512 MiB | FAT32 | `/mnt/boot` |
+| Root | 40+ GiB | ext4 | `/mnt` |
+| Swap | 2–8 GiB (ou conforme RAM/hibernação) | swap | `swapon` |
+| Home (opcional) | restante | ext4 | `/mnt/home` |
 
-Teste de conexão
+### Exemplo com `cfdisk`
 
-`ping www.google.com`
+```bash
+cfdisk /dev/sda
+```
 
-> “ctrl” + “c” para parar o teste
+- Label: **GPT**
+- Criar partições conforme tabela acima
+- Tipo EFI para partição de boot
 
-ou
+---
 
-`ping -c 3 www.google.com`
+## 4) Formatação e montagem
 
-> Para o teste após 3 tentativas
+> Ajuste os nomes (`/dev/sdaX`, `/dev/nvme0n1pX`) para o seu caso.
 
-### Esquema de particionamento, formatação e montagem
+```bash
+mkfs.fat -F32 /dev/sda1
+mkfs.ext4 /dev/sda2
+mkswap /dev/sda3
+mkfs.ext4 /dev/sda4
+```
 
-![Particionamento](/imgs/partition.jpg)
+Montagem:
 
-nota: o que vc vai mais usar no `cfdisk` é "new", tamanho número em G para Gib ou M para Mib, "write" e "type" para escrever as modificações. Você pode pesquisar por fora o conceito ou entendê-lo com a prática.
+```bash
+mount /dev/sda2 /mnt
+mkdir -p /mnt/boot
+mount /dev/sda1 /mnt/boot
+swapon /dev/sda3
+mkdir -p /mnt/home
+mount /dev/sda4 /mnt/home
+```
 
-### Ocupando todo o HD
+Checklist rápido:
 
-nota: dual boot com windows é mais a frente, mas por favor, leia isso aqui, vai lhe ser útil
+```bash
+lsblk
+```
 
-Primeiro vamos montar o esquema de particionamento e para isso vamos usar a linha de comando `cfdisk` por ser mais interativa
+---
 
-Use `cfdisk -z /dev/sda`, onde a flag `-z` indica que será no cenário a partir do zero, ou seja, em todo o disco do HD
+## 5) Instalação da base do sistema
 
-Agora escreva as partições seguindo o modelo abaixo (caprichei para não ter que explicar isso em texto):
+```bash
+pacstrap -K /mnt base linux linux-firmware linux-headers base-devel \
+  networkmanager sudo vim nano grub efibootmgr
+```
 
-|Partição        |Diretório                      |Espaço                       |Tipo                         |
-|----------------|-------------------------------|-----------------------------|-----------------------------|
-|/dev/sda1       |`/efi`                         | 300Mb                       | efi                         |
-|/dev/sda2       |`/`                            | O quanto você quiser        | ext4                        |
-|/dev/sda3       |`swap`                         | Dobro da RAM                | swap                        |
-|/dev/sda4       |`/home`                        | Restante da memória         | ext4                        |
+Gerar `fstab`:
 
-Mas basicamente, será assim: `/efi` será o carinha que vai dizer para placa mãe que irá dizer como vamos dar o boot no sistema, `/` vai ser o `C:` do windows que estamos habituados, ou seja, vai carregar todo mundo, principalmente os programas e configurações, `/swap` este é a nossa extenção da memória ram e por último e não menos importante `/home` que será para nossos usuários, ou usuário, que terá documentos, downloads, músicas, etc.
+```bash
+genfstab -U /mnt >> /mnt/etc/fstab
+```
 
-Formatação
+Entrar no sistema instalado:
 
-`mkfs.vfat -F 32 /dev/sda1` para formatar em f32 igual ao sistema de arquivos de pendrive
+```bash
+arch-chroot /mnt
+```
 
-`mkfs.ext4 /dev/sda2` para formatar em sistema de arquivo linux
+---
 
-`mkswap /dev/sda3` para formatar em sistema de arquivo swap
+## 6) Configuração inicial (dentro do chroot)
 
-`mkfs.ext4 /dev/sda4` e esse também é para formatar em sistema de arquivo linux
+### Fuso horário e relógio
 
-Montagem (USE `lsblk` para fazer checagem, e resumindo a utilidade dele, lista informações de blocos disponíveis)
+```bash
+ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime
+hwclock --systohc
+```
 
-Faça a montagem da pasta raiz
+### Locale
 
-`mount /dev/sda2 /mnt`
+Edite:
 
-Faça a montagem do nosso swap
+```bash
+nano /etc/locale.gen
+```
 
-`swapon /dev/sda3`
+Descomente ao menos:
 
-Crie a pasta home
+- `en_US.UTF-8 UTF-8`
+- `pt_BR.UTF-8 UTF-8`
 
-`mkdir /mnt/home`
+Gere locales:
 
-Monte a pasta home
+```bash
+locale-gen
+```
 
-`mount /dev/sda4 /mnt/home`
+Crie `/etc/locale.conf`:
 
-Crie e monte a pasta efi
+```bash
+echo 'LANG=pt_BR.UTF-8' > /etc/locale.conf
+```
 
-`mkdir /mnt/efi`
+### Teclado no console
 
-`mount /dev/sda1 /mnt/efi`
+```bash
+echo 'KEYMAP=br-abnt2' > /etc/vconsole.conf
+```
 
-### Dual boot com windows 10
+### Hostname e hosts
 
-Aqui em baixo é o esquema de particionamento formatação e montagem em disco previamento ocupado (com windows e mais especificamente o 10), que foi o que estava instalado na minha máquina e por onde me basiei a instalação. Então basicamente será o mesmo processo, exceto que você precisará separar uma partição no "gerenciador de discos" do windows.
+```bash
+echo 'archlinux' > /etc/hostname
+cat > /etc/hosts <<HOSTS
+127.0.0.1	localhost
+::1		localhost
+127.0.1.1	archlinux.localdomain	archlinux
+HOSTS
+```
 
-Ou seja, visualmente explicando.
+### Senha do root
 
-|Partição        |Diretório                      |Espaço                       |Tipo                         |
-|----------------|-------------------------------|-----------------------------|-----------------------------|
-|/dev/sda1       |`Windows efi`                  |                             |                             |
-|/dev/sda2       |`Microsoft reserved`           |                             |                             |
-|/dev/sda3       |`Microsoft basic data`         |                             |                             |
-|/dev/sda4       |`Windows recovery environment` |                             |                             |
-|/dev/sda5       |                               |                             |                             |
+```bash
+passwd
+```
 
-Esse `/dev/sda5` é o espaço que você separou
+---
 
-Particionamento
+## 7) Bootloader (GRUB UEFI)
 
-`cfdisk`
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+```
 
-Escreva as partições seguindo o modelo abaixo:
+> Em dual boot com Windows, geralmente vale instalar também: `os-prober` e depois regenerar o `grub.cfg`.
 
-|Partição        |Diretório                      |Espaço                       |Tipo                         |
-|----------------|-------------------------------|-----------------------------|-----------------------------|
-|/dev/sda1       |`Windows efi`                  |                             |                             |
-|/dev/sda2       |`Microsoft reserved`           |                             |                             |
-|/dev/sda3       |`Microsoft basic data`         |                             |                             |
-|/dev/sda4       |`Windows recovery environment` |                             |                             |
-|/dev/sda5       |`/efi`                         | 300Mb                       | efi                         |
-|/dev/sda6       |`/`                            | O quanto você quiser        | ext4                        |
-|/dev/sda7       |`swap`                         | Dobro da RAM                | swap                        |
-|/dev/sda8       |`/home`                        | Restante da memória         | ext4                        |
+---
 
-Formatação (este trecho expliquei anteriormente, portanto, vou pular as explicações)
+## 8) Usuário, sudo e rede
 
-`mkfs.vfat -F 32 /dev/sda5`
+Criar usuário:
 
-`mkfs.ext4 /dev/sda6`
+```bash
+useradd -m -G wheel,audio,video,storage -s /bin/bash seu_usuario
+passwd seu_usuario
+```
 
-`mkswap /dev/sda7`
+Habilitar sudo para grupo wheel:
 
-`mkfs.ext4 /dev/sda8`
+```bash
+EDITOR=nano visudo
+```
 
-Montagem (USE `lsblk` para fazer checagem)
+Descomente linha:
 
-`mount /dev/sda6 /mnt`
+```text
+%wheel ALL=(ALL:ALL) ALL
+```
 
-`swapon /dev/sda7`
+Habilite o NetworkManager:
 
-Crie a pasta home
+```bash
+systemctl enable NetworkManager
+```
 
-`mkdir /mnt/home`
+Finalizar instalação:
 
-Monte a pasta home
+```bash
+exit
+umount -R /mnt
+reboot
+```
 
-`mount /dev/sda8 /mnt/home`
+---
 
-Crie e monte a pasta efi
+## 9) Pós-instalação (opcional): interface gráfica
 
-`mkdir /mnt/efi`
+Depois do primeiro boot, entre com seu usuário e escolha **um** ambiente desktop.
 
-`mount /dev/sda5 /mnt/efi`
+### GNOME
 
-Atualize o relógio do sistema
+```bash
+sudo pacman -S gnome gdm
+sudo systemctl enable gdm
+```
 
-`timedatectl set-ntp true`
+### KDE Plasma
 
-Faça a checagem
+```bash
+sudo pacman -S plasma-meta kde-applications sddm
+sudo systemctl enable sddm
+```
 
-`timedatectl status`
+### Drivers de vídeo (resumo)
 
-## Instalação e configuração base do sistema
+- Intel/AMD modernos: `mesa` (geralmente já suficiente).
+- NVIDIA proprietária: `nvidia nvidia-utils`.
 
-Instale os pacotes essenciais do sistema
 
-![pacstrap](/imgs/pacstrap.gif)
+### Guias detalhados por ambiente gráfico
 
-`pacstrap /mnt/ base base-devel linux linux-firmware nano vim`
+- [KDE Plasma](kde.md)
+- [GNOME](gnome.md)
+- [Cinnamon](cinnamon.md)
+- [XFCE](xfce.md)
+- [i3wm](i3wm.md)
+- [i3-gaps](i3gaps.md)
 
-## Configurações iniciais
+---
 
-Gere o arquivo fstab
+## 🧪 Validação pós-instalação
 
-`genfstab -U /mnt >> /mnt/etc/fstab`
+Após reiniciar:
 
-Mude para root
+```bash
+ip a
+ping -c 3 archlinux.org
+timedatectl status
+```
 
-`arch-chroot /mnt`
+Se estiver tudo OK: rede ativa, hora correta e boot estável ✅
 
-Defina o fuso horário (use "ln /usr/share/zoneinfo/" para encontrar sua região e "ln /usr/share/zoneinfo/America/ para encontrar sua cidade")
+---
 
-Modelo no arch wiki
+## ⚠️ Notas importantes
 
-`ln -sf /usr/share/zoneinfo/Region/City /etc/localtime`
+- Prefira sempre confirmar comandos no ArchWiki antes de executar em produção.
+- Nomes de partições variam entre SATA (`/dev/sdaX`) e NVMe (`/dev/nvme0n1pX`).
+- Secure Boot requer passos extras (assinatura/chaves) e não está coberto neste guia.
+- Se usar hibernação, ajuste swap de acordo com sua RAM e configure resume.
 
-Exemplo prático
+---
 
-`ln -sf /usr/share/zoneinfo/America/Maceio /etc/localtime`
+## Referência oficial
 
-Para sincronizar o relógio com as informações da BIOS, se ela estiver correta, o seu relógio também estará:
+- ArchWiki (guia oficial): <https://wiki.archlinux.org/title/Installation_guide>
 
-`hwclock --systohc`
-
-Para conferir se data e hora do sistema estão corretas:
-
-`date`
-
-Então vamos editar o arquivo de locales para dizer qual encode de caracteres vamos usar.
-
-Configurando a localização
-
-`nano /etc/locale.gen`
-
- Descomente a linha que vai usar(retirar o simbolo de # na frente):
-
-en_US.UTF-8 UTF-8
-pt_BR.UTF-8 UTF-8
-
-Crie o arquivo locale.conf e defina a variável LANG adequadamente (localidade brasileira com mensagens em inglês):
-
-`nano /etc/locale.conf`
-
-Escreva:
-
-LANG=pt_BR.UFT-8
-
-Gere o "locale" executando:
-
-`locale-gen`
-
-Salve o layout do teclado usando:
-
-`echo "KEYMAP=br-abnt2" >> /etc/vconsole.conf`
-
-Configuração de rede
-
-Crie o arquivo hostname
-
-`echo "meu_host_name_que_criei" >> /etc/hostname`
-
-Adicione as entradas correspondentes ao hosts
-
-`nano /etc/hosts`
-
-![hosts](imgs/hosts.png)
-
-Defina a senha do root
-
-`passwd`
-
-Instale gerenciador de boot (desconsidere os-prober e ntfs-3g se não existir dual com windows)
-
-`pacman -S grub efibootmgr os-prober ntfs-3g`
-
-Configure o gerenciador de boot
-
-`grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB`
-
-`grub-mkconfig -o /boot/grub/grub.cfg`
-
-Instale o networkmanager:
-
-`pacman -S networkmanager`
-
-Habilite-o
-
-`systemctl enable NetworkManager`
-
-Instale o driver proprietário (placas e processadores intel) e aplicativos para placa de som "ADVANCED LINUX SOUND ARCHITECTURE (ALSA)"
-
-`pacman -S xf86-video-intel mesa pulseaudio alsa-utils`
-
-## DESMONTE AS PARTIÇÕES E REINICIE
-
- exit
- umount -R /mnt
- poweroff
-
-## Configuração de usuário
-
-Crie usuário, pasta na partição /home e permissões especiais
-
-`useradd -m -G audio,video,storage,wheel -s /bin/bash pessoa1`
-
-`passwd pessoa1`
-
-Permissão do sudo
-
-`nano /etc/sudoers` e descomente `wheel (ALL) = ALL`
-
-NetworkManager vem com `nmcli` e `nmtui`, mas o `nmcli` é o mais que suficiente para fazer a tarefa
-
-Exemplos de nmcli
-
-Lista redes wifi próximas:
-
-`nmcli device wifi list`
-
-Para conectar a uma rede wifi:
-
-`nmcli device wifi connect NOME_da_REDE password SENHA_da_REDE`
-
-### Interface gráfica
-
-![interface gráfica](imgs/sidonia.gif)
-
-Para preparar o ambiente das interfaces gráficas precisamos de um servidor de exibição, no caso Xorg
-
-`sudo pacman -S xorg-server xorg-xinit xorg-apps mesa`
-
-Depois do servidor de exibição, precisa-se do driver de vídeo
-
-`sudo pacman -S xf86-video-intel` Intel
-
-`sudo pacman -S nvidia nvidia-settings` Nvidia
-
-`sudo pacman -S xf86-video-amdgpu` AMD
-
-[KDE](kde.md)
-
-[Gnome](gnome.md)
-
-[Cinnamon](cinnamon.md)
+Se quiser, na próxima atualização eu posso incluir uma seção específica de:
+- Dual boot com Windows 11 (passo a passo completo),
+- Btrfs com subvolumes,
+- Criptografia com LUKS,
+- Instalação automatizada com `archinstall`.
