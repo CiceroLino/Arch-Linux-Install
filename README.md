@@ -26,12 +26,12 @@ flowchart TD
     B --> C[Particionar disco]
     C --> D[Formatar e montar partições]
     D --> E[Instalar base com pacstrap]
-    E --> F[Gerar fstab e entrar em arch-chroot]
-    F --> G[Timezone + locale + hostname]
+    E --> F[Gerar fstab e entrar no arch-chroot]
+    F --> G[Configurar timezone, locale e hostname]
     G --> H[Instalar/Configurar bootloader]
-    H --> I[Criar usuário + sudo + NetworkManager]
+    H --> I[Criar usuario, sudo e NetworkManager]
     I --> J[Reiniciar e validar boot]
-    J --> K[Instalar ambiente gráfico (opcional)]
+    J --> K[Instalar ambiente grafico opcional]
 ```
 
 ---
