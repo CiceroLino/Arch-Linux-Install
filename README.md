@@ -302,6 +302,16 @@ sudo systemctl enable sddm
 - Intel/AMD modernos: `mesa` (geralmente já suficiente).
 - NVIDIA proprietária: `nvidia nvidia-utils`.
 
+
+### Guias detalhados por ambiente gráfico
+
+- [KDE Plasma](kde.md)
+- [GNOME](gnome.md)
+- [Cinnamon](cinnamon.md)
+- [XFCE](xfce.md)
+- [i3wm](i3wm.md)
+- [i3-gaps](i3gaps.md)
+
 ---
 
 ## 🧪 Validação pós-instalação
